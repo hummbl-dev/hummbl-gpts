@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hummbl-dev/hummbl-gpts/schemas/gpt.schema.json",
+  "title": "GPT Instance Metadata",
+  "description": "Non-authoritative UI mirror for custom GPT instances. Source of truth is repository artifacts.",
+  "type": "object",
+  "required": [
+    "name",
+    "description",
+    "version",
+    "status",
+    "authority",
+    "notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name for the GPT instance. May be empty for template.",
+      "minLength": 0
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the GPT's purpose. May be empty for template.",
+      "minLength": 0
+    },
+    "version": {
+      "type": "string",
+      "description": "Version string. May be empty for template or follow semver.",
+      "minLength": 0
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status of the GPT instance.",
+      "enum": [
+        "template",
+        "draft",
+        "active",
+        "deprecated"
+      ]
+    },
+    "authority": {
+      "type": "string",
+      "description": "Authority designation. MUST be 'non-authoritative' per governance.",
+      "const": "non-authoritative"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional context or warnings.",
+      "minLength": 1
+    }
+  }
+}

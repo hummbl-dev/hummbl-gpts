@@ -259,11 +259,63 @@ function checkFilesTrackedByGit(spec) {
   return errors;
 }
 
+function validateGptJsonAgainstSchema(gptJsonPath) {
+  const errors = [];
+  const schemaPath = path.join(REPO_ROOT, "schemas/gpt.schema.json");
+  
+  if (!exists(schemaPath)) {
+    // Fail closed: if schema exists, we enforce it; if missing, skip validation
+    return errors;
+  }
+
+  if (!exists(gptJsonPath)) {
+    errors.push(`Missing ${rel(gptJsonPath)}`);
+    return errors;
+  }
+
+  let gptJson;
+  try {
+    gptJson = JSON.parse(readText(gptJsonPath));
+  } catch (e) {
+    errors.push(`Invalid JSON in ${rel(gptJsonPath)}: ${String(e.message || e)}`);
+    return errors;
+  }
+
+  let schema;
+  try {
+    schema = JSON.parse(readText(schemaPath));
+  } catch (e) {
+    errors.push(`Invalid JSON in ${rel(schemaPath)}: ${String(e.message || e)}`);
+    return errors;
+  }
+
+  try {
+    const ajv = new Ajv({ allErrors: true, strict: false, validateFormats: false });
+    addFormats(ajv);
+    const validate = ajv.compile(schema);
+    const valid = validate(gptJson);
+    if (!valid) {
+      const msg = (validate.errors || [])
+        .map((er) => `${er.instancePath || "/"} ${er.message}`)
+        .join("; ");
+      errors.push(`${rel(gptJsonPath)} fails gpt.schema.json validation: ${msg}`);
+    }
+  } catch (e) {
+    errors.push(`gpt.json schema validator failure for ${rel(gptJsonPath)} (fail-closed): ${String(e.message || e)}`);
+  }
+
+  return errors;
+}
+
 function checkTemplateSanity() {
   const errors = [];
   const warnings = [];
 
   const templateGptJson = path.join(REPO_ROOT, "gpts/_template/gpt.json");
+  
+  // Validate against schema first
+  errors.push(...validateGptJsonAgainstSchema(templateGptJson));
+  
   if (!exists(templateGptJson)) return { errors: ["Missing gpts/_template/gpt.json"], warnings };
 
   let j;
@@ -351,6 +403,12 @@ function main() {
 
     // Git tracking enforcement (fail-closed)
     errors.push(...checkFilesTrackedByGit(spec));
+    
+    // Validate gpt.json against schema
+    if (spec.paths?.ui_mirror) {
+      const gptJsonPath = path.join(REPO_ROOT, spec.paths.ui_mirror);
+      errors.push(...validateGptJsonAgainstSchema(gptJsonPath));
+    }
 
     // OUTPUT_FORMAT required sections + order
     if (spec.contracts?.output_format_required === true) {
