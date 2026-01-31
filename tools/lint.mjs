@@ -20,6 +20,7 @@ import addFormats from "ajv-formats";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { execSync } from "node:child_process";
 
 const REPO_ROOT = process.cwd();
 const MANIFEST_PATH = path.join(REPO_ROOT, "spec.manifest.json");
@@ -231,6 +232,33 @@ function checkRequiredFiles(spec) {
   return errors;
 }
 
+function checkFilesTrackedByGit(spec) {
+  const errors = [];
+  const p = spec.paths || {};
+  const requiredPathKeys = ["system_prompt", "non_claims", "output_format", "operator_usage", "ui_mirror"];
+
+  for (const k of requiredPathKeys) {
+    if (typeof p[k] !== "string" || !p[k].length) continue; // already caught by checkRequiredFiles
+    
+    const relPath = p[k];
+    try {
+      const result = execSync(`git ls-files -- "${relPath}"`, { 
+        cwd: REPO_ROOT, 
+        encoding: "utf8",
+        stdio: ["pipe", "pipe", "pipe"]
+      }).trim();
+      
+      if (!result) {
+        errors.push(`spec ${spec.spec_id}: required file ${relPath} exists but is not tracked by git (run: git add ${relPath})`);
+      }
+    } catch (e) {
+      // Git command failed - could be not in a git repo, but fail closed
+      errors.push(`spec ${spec.spec_id}: failed to check git tracking for ${relPath} (fail-closed): ${String(e.message || e)}`);
+    }
+  }
+  return errors;
+}
+
 function checkTemplateSanity() {
   const errors = [];
   const warnings = [];
@@ -320,6 +348,9 @@ function main() {
 
     // Required files
     errors.push(...checkRequiredFiles(spec));
+
+    // Git tracking enforcement (fail-closed)
+    errors.push(...checkFilesTrackedByGit(spec));
 
     // OUTPUT_FORMAT required sections + order
     if (spec.contracts?.output_format_required === true) {
