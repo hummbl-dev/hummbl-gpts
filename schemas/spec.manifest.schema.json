@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hummbl.dev/schemas/spec.manifest.schema.json",
+  "title": "HUMMBL GPT Spec Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifest_version", "repo", "principles", "routing", "specs"],
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "namespace", "version_file", "baseline_tag"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "namespace": { "type": "string", "minLength": 1 },
+        "version_file": { "type": "string", "const": "VERSION" },
+        "baseline_tag": { "type": "string", "minLength": 1 }
+      }
+    },
+    "principles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["specs_as_artifacts", "ui_is_non_authoritative", "portable_plain_text", "fail_closed_validation"],
+      "properties": {
+        "specs_as_artifacts": { "type": "boolean", "const": true },
+        "ui_is_non_authoritative": { "type": "boolean", "const": true },
+        "portable_plain_text": { "type": "boolean", "const": true },
+        "fail_closed_validation": { "type": "boolean", "const": true }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deterministic", "default_spec_id", "allowed_spec_ids"],
+      "properties": {
+        "deterministic": { "type": "boolean", "const": true },
+        "default_spec_id": { "type": "string", "minLength": 1 },
+        "allowed_spec_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "specs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/spec" },
+      "uniqueItems": true
+    },
+    "validation_hooks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "notes", "checks"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "notes": { "type": "string" },
+        "checks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "relPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\.{2})(?!.*\\\\)(?!.*://).+$"
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spec_id", "display_name", "status", "role", "paths", "contracts", "capabilities"],
+      "properties": {
+        "spec_id": { "type": "string", "minLength": 1 },
+        "display_name": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "enum": ["stable", "experimental", "deprecated", "template"] },
+        "role": { "type": "string", "minLength": 1 },
+        "paths": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["root", "system_prompt", "non_claims", "output_format", "operator_usage", "ui_mirror"],
+          "properties": {
+            "root": { "$ref": "#/$defs/relPath" },
+            "system_prompt": { "$ref": "#/$defs/relPath" },
+            "non_claims": { "$ref": "#/$defs/relPath" },
+            "output_format": { "$ref": "#/$defs/relPath" },
+            "operator_usage": { "$ref": "#/$defs/relPath" },
+            "ui_mirror": { "$ref": "#/$defs/relPath" }
+          }
+        },
+        "contracts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["output_format_required", "required_sections_in_output", "prohibited_content"],
+          "properties": {
+            "output_format_required": { "type": "boolean" },
+            "required_sections_in_output": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "classification_buckets_required": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "uniqueItems": true
+            },
+            "prohibited_content": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["execution", "validation", "enforcement"],
+          "properties": {
+            "execution": { "type": "boolean", "const": false },
+            "validation": { "type": "boolean", "const": false },
+            "enforcement": { "type": "boolean", "const": false }
+          }
+        }
+      }
+    }
+  }
+}
