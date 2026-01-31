@@ -1,0 +1,15 @@
+{
+  "name": "hummbl-gpts",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  },
+  "scripts": {
+    "lint": "node tools/lint.mjs"
+  },
+  "dependencies": {
+    "ajv-draft-04": "^1.0.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

@@ -3,6 +3,7 @@
  * HUMMBL GPT Specs Linter (minimal, fail-closed)
  *
  * Checks:
+ * - spec.manifest.json: JSON Schema validation (Draft 2020-12)
  * - spec.manifest.json: required top-level shape (minimal schema-ish)
  * - per spec_id: required files exist
  * - OUTPUT_FORMAT.md: required sections exist + order matches manifest
@@ -14,6 +15,8 @@
  * Exit code: 0 ok, 1 errors
  */
 
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -262,6 +265,38 @@ function main() {
   if (errors.length) fail(errors, warnings);
 
   const manifest = parsed.json;
+
+  // JSON Schema validation (Draft 2020-12) — fail closed
+  const schemaPath = path.join(REPO_ROOT, "schemas/spec.manifest.schema.json");
+  if (!exists(schemaPath)) {
+    errors.push(`Missing ${rel(schemaPath)} (required for manifest schema validation)`);
+    fail(errors, warnings);
+  }
+
+  let schema;
+  try {
+    schema = JSON.parse(readText(schemaPath));
+  } catch (e) {
+    errors.push(`Invalid JSON in ${rel(schemaPath)}: ${String(e.message || e)}`);
+    fail(errors, warnings);
+  }
+
+  try {
+    const ajv = new Ajv({ allErrors: true, strict: false, validateFormats: false });
+    addFormats(ajv);
+    const validate = ajv.compile(schema);
+    const valid = validate(manifest);
+    if (!valid) {
+      const msg = (validate.errors || [])
+        .map((er) => `${er.instancePath || "/"} ${er.message}`)
+        .join("; ");
+      errors.push(`spec.manifest.json fails JSON Schema validation: ${msg}`);
+      fail(errors, warnings);
+    }
+  } catch (e) {
+    errors.push(`Schema validator failure (fail-closed): ${String(e.message || e)}`);
+    fail(errors, warnings);
+  }
 
   const shape = validateManifestShape(manifest);
   errors.push(...shape.errors);
