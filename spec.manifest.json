@@ -1,0 +1,150 @@
+{
+  "manifest_version": "1.0.0",
+  "repo": {
+    "name": "hummbl-gpts",
+    "namespace": "hummbl-dev",
+    "version_file": "VERSION",
+    "baseline_tag": "v0.1.0-gpts-core-contracts"
+  },
+  "principles": {
+    "specs_as_artifacts": true,
+    "ui_is_non_authoritative": true,
+    "portable_plain_text": true,
+    "fail_closed_validation": true
+  },
+  "routing": {
+    "deterministic": true,
+    "default_spec_id": "gpt.canonical-explainer",
+    "allowed_spec_ids": [
+      "gpt.canonical-explainer",
+      "gpt.governance-boundary",
+      "gpt.caes-classifier"
+    ]
+  },
+  "specs": [
+    {
+      "spec_id": "gpt.canonical-explainer",
+      "display_name": "Canonical Explainer (HUMMBL)",
+      "status": "stable",
+      "role": "read-only explanation of provided HUMMBL artifacts",
+      "paths": {
+        "root": "gpts/gpt.canonical-explainer",
+        "system_prompt": "gpts/gpt.canonical-explainer/SYSTEM_PROMPT.md",
+        "non_claims": "gpts/gpt.canonical-explainer/NON_CLAIMS.md",
+        "output_format": "gpts/gpt.canonical-explainer/OUTPUT_FORMAT.md",
+        "operator_usage": "gpts/gpt.canonical-explainer/OPERATOR_USAGE.md",
+        "ui_mirror": "gpts/gpt.canonical-explainer/gpt.json"
+      },
+      "contracts": {
+        "output_format_required": true,
+        "required_sections_in_output": [
+          "SOURCE CONTEXT",
+          "SUMMARY (PLAIN RESTATEMENT)",
+          "KEY TERMS / STRUCTURES",
+          "WHAT IS EXPLICITLY STATED",
+          "WHAT IS NOT SPECIFIED",
+          "ASSUMPTIONS",
+          "NON-CLAIMS"
+        ],
+        "prohibited_content": [
+          "approvals",
+          "execution guidance",
+          "validation claims",
+          "compliance determinations",
+          "canon modifications"
+        ]
+      },
+      "capabilities": {
+        "execution": false,
+        "validation": false,
+        "enforcement": false
+      }
+    },
+    {
+      "spec_id": "gpt.governance-boundary",
+      "display_name": "Governance Boundary (HUMMBL)",
+      "status": "stable",
+      "role": "boundary clarification; drift/ambiguity surfacing",
+      "paths": {
+        "root": "gpts/gpt.governance-boundary",
+        "system_prompt": "gpts/gpt.governance-boundary/SYSTEM_PROMPT.md",
+        "non_claims": "gpts/gpt.governance-boundary/NON_CLAIMS.md",
+        "output_format": "gpts/gpt.governance-boundary/OUTPUT_FORMAT.md",
+        "operator_usage": "gpts/gpt.governance-boundary/OPERATOR_USAGE.md",
+        "ui_mirror": "gpts/gpt.governance-boundary/gpt.json"
+      },
+      "contracts": {
+        "output_format_required": true,
+        "required_sections_in_output": [
+          "BOUNDARIES",
+          "NON-GOALS",
+          "AMBIGUITIES",
+          "RISKS (AUTHORITY / DRIFT)",
+          "ASSUMPTIONS",
+          "NON-CLAIMS"
+        ],
+        "prohibited_content": [
+          "approvals",
+          "rejections",
+          "compliance determinations",
+          "prescriptive fixes",
+          "legal or regulatory judgments"
+        ]
+      },
+      "capabilities": {
+        "execution": false,
+        "validation": false,
+        "enforcement": false
+      }
+    },
+    {
+      "spec_id": "gpt.caes-classifier",
+      "display_name": "CAES Classifier (HUMMBL)",
+      "status": "stable",
+      "role": "classify candidate actions into Necessary/Indicated/Possible",
+      "paths": {
+        "root": "gpts/gpt.caes-classifier",
+        "system_prompt": "gpts/gpt.caes-classifier/SYSTEM_PROMPT.md",
+        "non_claims": "gpts/gpt.caes-classifier/NON_CLAIMS.md",
+        "output_format": "gpts/gpt.caes-classifier/OUTPUT_FORMAT.md",
+        "operator_usage": "gpts/gpt.caes-classifier/OPERATOR_USAGE.md",
+        "ui_mirror": "gpts/gpt.caes-classifier/gpt.json"
+      },
+      "contracts": {
+        "output_format_required": true,
+        "required_sections_in_output": [
+          "CAES_CLASSIFICATION",
+          "RATIONALE",
+          "ASSUMPTIONS",
+          "UNCERTAINTY / NON-CLAIMS"
+        ],
+        "classification_buckets_required": [
+          "Necessary",
+          "Indicated",
+          "Possible"
+        ],
+        "prohibited_content": [
+          "execution steps",
+          "sequencing",
+          "prioritization beyond CAES buckets",
+          "approval language",
+          "enforcement language"
+        ]
+      },
+      "capabilities": {
+        "execution": false,
+        "validation": false,
+        "enforcement": false
+      }
+    }
+  ],
+  "validation_hooks": {
+    "enabled": false,
+    "notes": "Reserved for external validators. Implement fail-closed checks before enabling.",
+    "checks": [
+      "files_exist",
+      "output_sections_present",
+      "prohibited_phrases_absent"
+    ]
+  }
+}
