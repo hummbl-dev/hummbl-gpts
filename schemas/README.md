@@ -30,4 +30,10 @@ Upgrading schema dialect is a governed change:
 - `authority` must be `"non-authoritative"`
 - `status` enum: `template | draft | active | deprecated`
 - Required fields: `name`, `description`, `version`, `status`, `authority`, `notes`
+- **Conditional validation:**
+  - If `status=template`: name/description/version **must be empty strings**
+  - Else: name/description/version **must be non-empty** (minLength: 1)
+
+### Instance metadata expectation
+Currently, all instance `gpt.json` files use `status: "template"` and have empty name/description/version fields. This is valid per schema. When promoting an instance to `draft|active|deprecated`, populate these fields before changing status—the schema enforces this ordering.
 
