@@ -4,6 +4,10 @@ Vendor-agnostic, governance-first specifications for HUMMBL custom GPTs and prom
 
 This repository defines **portable system prompts, explicit non-claims, and pinned canonical references** for HUMMBL GPT interfaces. Custom GPTs are treated as **optional, non-authoritative UI surfaces** that must work alongside regular ChatGPT usage, Codex (browser / IDE / CLI), and other LLM or agent tools.
 
+## Operations
+- Refresh tracked living artifacts: `npm run artifacts:refresh`
+- Validate + refresh in one step: `npm run codex:setup`
+
 ## Scope
 - Prompt and interface specifications only
 - Governance and authority boundaries

@@ -6,7 +6,9 @@
     "ajv": "^8.17.1"
   },
   "scripts": {
-    "lint": "node tools/lint.mjs"
+    "lint": "node tools/lint.mjs",
+    "artifacts:refresh": "node tools/generate-living-artifacts.mjs",
+    "codex:setup": "npm run lint && npm run artifacts:refresh"
   },
   "dependencies": {
     "ajv-draft-04": "^1.0.0",
