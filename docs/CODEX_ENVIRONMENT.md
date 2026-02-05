@@ -37,3 +37,7 @@ Note: the active working-tree snapshot excludes generated artifact files and `no
 - Generated artifacts in `artifacts/` are committed and versioned in git.
 - Any change that affects generated artifact content should include a refresh (`npm run artifacts:refresh`) before merge.
 - CI enforces freshness by regenerating and failing if tracked artifact files differ.
+- `artifacts/LIVING_ARTIFACTS.md`: current branch/revision snapshot + spec inventory.
+- `artifacts/ACTIVE_CHANGELOG.md`: rolling state using current working tree + recent commits.
+
+These artifacts are intended to be updated continuously as active documentation for operators.
