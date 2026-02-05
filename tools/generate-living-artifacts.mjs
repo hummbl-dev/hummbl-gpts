@@ -14,7 +14,6 @@ function sh(cmd, fallback = '') {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe']
     }).trim();
-    return execSync(cmd, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch {
     return fallback;
   }
@@ -34,7 +33,6 @@ function writeFile(p, content) {
 
 function relFromRoot(p) {
   return path.relative(root, p).replaceAll('\\', '/');
-  return path.relative(root, p).replaceAll('\\\\', '/');
 }
 
 function gatherSpecs(manifest) {
@@ -57,9 +55,7 @@ function getWorkingTreeSnapshot() {
   return status || '(clean)';
 }
 
-
 function generateLivingArtifacts(manifest, specs, meta) {
-function generateLivingArtifacts(manifest, specs) {
   const now = new Date().toISOString();
   const branch = sh('git rev-parse --abbrev-ref HEAD', 'unknown');
   const head = sh('git rev-parse --short HEAD', 'unknown');
@@ -100,9 +96,7 @@ function generateLivingArtifacts(manifest, specs) {
 }
 
 function generateActiveChangelog(meta) {
-function generateActiveChangelog() {
   const now = new Date().toISOString();
-  const status = sh('git status --short', '(clean)');
   const recent = sh('git log --oneline -n 10', 'No git history available.');
 
   const lines = [];
@@ -113,12 +107,8 @@ function generateActiveChangelog() {
   lines.push('## Working Tree (excluding generated artifacts and node_modules)');
   lines.push('```text');
   lines.push(meta.workingTree);
-  lines.push(`- Refreshed at (UTC): ${now}`);
-  lines.push('');
-  lines.push('## Working Tree');
-  lines.push('```text');
-  lines.push(status || '(clean)');
   lines.push('```');
+  lines.push(`- Refreshed at (UTC): ${now}`);
   lines.push('');
   lines.push('## Recent Commits');
   lines.push('```text');
@@ -149,11 +139,6 @@ function main() {
 
   writeFile(livingPath, generateLivingArtifacts(manifest, specs, meta));
   writeFile(activePath, generateActiveChangelog(meta));
-  const livingPath = path.join(outDir, 'LIVING_ARTIFACTS.md');
-  const activePath = path.join(outDir, 'ACTIVE_CHANGELOG.md');
-
-  writeFile(livingPath, generateLivingArtifacts(manifest, specs));
-  writeFile(activePath, generateActiveChangelog());
 
   console.log(`Generated ${relFromRoot(livingPath)}`);
   console.log(`Generated ${relFromRoot(activePath)}`);
