@@ -26,3 +26,20 @@ node tools/lint.mjs
 Fail-closed: if a check cannot be performed, it fails.  
 Context-aware: negations ("does not approve") are allowed.  
 Governance-first: authority leakage is blocked at lint time.
+
+## generate-living-artifacts.mjs
+Generates continuously refreshable operations docs for Codex workflows.
+
+### Run
+```bash
+node tools/generate-living-artifacts.mjs
+```
+
+### Outputs
+- `artifacts/LIVING_ARTIFACTS.md`
+- `artifacts/ACTIVE_CHANGELOG.md`
+
+### Notes
+- Working tree snapshot excludes `artifacts/**` and `node_modules/**` to reduce noise in active logs.
+- Active changelog intentionally omits commit-history snapshots to keep output deterministic for CI freshness checks.
+- Output is CI-stable and excludes branch/timestamp metadata to avoid detached-HEAD drift.
