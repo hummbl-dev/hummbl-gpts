@@ -30,5 +30,3 @@ npm install
 - `artifacts/ACTIVE_CHANGELOG.md`: rolling state using current working tree + recent commits.
 
 These artifacts are intended to be updated continuously as active documentation for operators.
-
-Note: the active working-tree snapshot excludes generated artifact files and `node_modules` so operators see actionable changes.

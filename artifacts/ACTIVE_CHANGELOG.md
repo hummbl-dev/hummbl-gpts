@@ -2,21 +2,17 @@
 
 Rolling operational log generated from repository state.
 
-- Refreshed at (UTC): 2026-02-05T11:09:09.459Z
-- HEAD at generation start: f161f96
+- Refreshed at (UTC): 2026-02-05T10:53:19.363Z
 
-## Working Tree (excluding generated artifacts and node_modules)
+## Working Tree
 ```text
-M CHANGELOG.md
- M docs/CODEX_ENVIRONMENT.md
- M tools/README.md
- M tools/generate-living-artifacts.mjs
-?? .gitignore
+M artifacts/LIVING_ARTIFACTS.md
+?? node_modules/
 ```
 
 ## Recent Commits
 ```text
-f161f96 feat: add Codex setup workflow with living artifacts and active changelog
+a208901 feat: add codex environment bootstrap and living artifacts
 08fba15 fix: tighten gpt.json schema with conditional validation
 36bcb77 feat: add gpt.json schema validation
 d414879 docs: document spec manifest schema dialect (draft-07)

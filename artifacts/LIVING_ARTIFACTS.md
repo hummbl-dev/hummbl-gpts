@@ -3,9 +3,9 @@
 This file is generated and intended to be refreshed continuously as the repository changes.
 
 ## Runtime Snapshot
-- Generated at (UTC): 2026-02-05T11:09:09.459Z
+- Generated at (UTC): 2026-02-05T10:53:19.330Z
 - Branch: work
-- HEAD at generation start: f161f96
+- HEAD: a208901
 - Manifest version: 1.0.0
 - Default spec: gpt.canonical-explainer
 
