@@ -9,11 +9,7 @@ const outDir = path.join(root, 'artifacts');
 
 function sh(cmd, fallback = '') {
   try {
-    return execSync(cmd, {
-      cwd: root,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
-    }).trim();
+    return execSync(cmd, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch {
     return fallback;
   }
@@ -32,7 +28,7 @@ function writeFile(p, content) {
 }
 
 function relFromRoot(p) {
-  return path.relative(root, p).replaceAll('\\', '/');
+  return path.relative(root, p).replaceAll('\\\\', '/');
 }
 
 function gatherSpecs(manifest) {
@@ -46,27 +42,20 @@ function gatherSpecs(manifest) {
   }));
 }
 
-function getWorkingTreeSnapshot() {
-  // Exclude generated/ephemeral paths so status reflects actionable edits.
-  const status = sh(
-    "git status --short -- ':!artifacts/**' ':!node_modules/**'",
-    ''
-  );
-  return status || '(clean)';
-}
+function generateLivingArtifacts(manifest, specs) {
+  const now = new Date().toISOString();
+  const branch = sh('git rev-parse --abbrev-ref HEAD', 'unknown');
+  const head = sh('git rev-parse --short HEAD', 'unknown');
 
-function getRecentCommits(count = 10) {
-  return sh(`git log --oneline -n ${count} --skip 1`, 'No git history available.');
-}
-
-function generateLivingArtifacts(manifest, specs, meta) {
   const lines = [];
   lines.push('# Living Artifacts');
   lines.push('');
   lines.push('This file is generated and intended to be refreshed continuously as the repository changes.');
   lines.push('');
   lines.push('## Runtime Snapshot');
-  lines.push(`- Branch: ${meta.branch}`);
+  lines.push(`- Generated at (UTC): ${now}`);
+  lines.push(`- Branch: ${branch}`);
+  lines.push(`- HEAD: ${head}`);
   lines.push(`- Manifest version: ${manifest.manifest_version || 'unknown'}`);
   lines.push(`- Default spec: ${manifest.routing?.default_spec_id || 'unknown'}`);
   lines.push('');
@@ -93,21 +82,26 @@ function generateLivingArtifacts(manifest, specs, meta) {
   return `${lines.join('\n')}\n`;
 }
 
-function generateActiveChangelog(meta) {
+function generateActiveChangelog() {
+  const now = new Date().toISOString();
+  const status = sh('git status --short', '(clean)');
+  const recent = sh('git log --oneline -n 10', 'No git history available.');
+
   const lines = [];
   lines.push('# Active Change Log');
   lines.push('');
   lines.push('Rolling operational log generated from repository state.');
   lines.push('');
+  lines.push(`- Refreshed at (UTC): ${now}`);
   lines.push('');
-  lines.push('## Working Tree (excluding generated artifacts and node_modules)');
+  lines.push('## Working Tree');
   lines.push('```text');
-  lines.push(meta.workingTree);
+  lines.push(status || '(clean)');
   lines.push('```');
   lines.push('');
   lines.push('## Recent Commits');
   lines.push('```text');
-  lines.push(meta.recentCommits);
+  lines.push(recent);
   lines.push('```');
   lines.push('');
 
@@ -125,17 +119,11 @@ function main() {
   const specs = gatherSpecs(manifest);
   ensureDir(outDir);
 
-  const meta = {
-    branch: sh('git rev-parse --abbrev-ref HEAD', 'unknown'),
-    workingTree: getWorkingTreeSnapshot(),
-    recentCommits: getRecentCommits(10)
-  };
-
   const livingPath = path.join(outDir, 'LIVING_ARTIFACTS.md');
   const activePath = path.join(outDir, 'ACTIVE_CHANGELOG.md');
 
-  writeFile(livingPath, generateLivingArtifacts(manifest, specs, meta));
-  writeFile(activePath, generateActiveChangelog(meta));
+  writeFile(livingPath, generateLivingArtifacts(manifest, specs));
+  writeFile(activePath, generateActiveChangelog());
 
   console.log(`Generated ${relFromRoot(livingPath)}`);
   console.log(`Generated ${relFromRoot(activePath)}`);

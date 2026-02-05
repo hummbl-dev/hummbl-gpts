@@ -38,6 +38,3 @@ node tools/generate-living-artifacts.mjs
 ### Outputs
 - `artifacts/LIVING_ARTIFACTS.md`
 - `artifacts/ACTIVE_CHANGELOG.md`
-
-### Notes
-- Working tree snapshot excludes `artifacts/**` and `node_modules/**` to reduce noise in active logs.
